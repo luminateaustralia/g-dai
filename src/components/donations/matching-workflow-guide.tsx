@@ -41,7 +41,7 @@ const STATUS_RULES = [
   {
     status: "needs_review" as const,
     rule: "≥ 30% but uncertain, or tied top candidates",
-    meaning: "Appears in the review queue for a human decision",
+    meaning: "Appears in the ledger needs-attention view for a human decision",
   },
   {
     status: "unmatched" as const,
@@ -110,8 +110,8 @@ export function MatchingWorkflowGuide() {
             <p className="text-sm text-muted-foreground">
               Matching runs automatically after import. Use{" "}
               <span className="font-medium text-foreground">Re-run matching</span>{" "}
-              to rebuild traces when data changes. Manual decisions in the review
-              queue are preserved and never overwritten.
+              to rebuild traces when data changes. Manual decisions in the
+              ledger needs-attention view are preserved and never overwritten.
             </p>
           </section>
 
@@ -172,7 +172,7 @@ export function MatchingWorkflowGuide() {
               <div className="text-sm">
                 <p className="font-medium">Human review</p>
                 <p className="mt-1 text-muted-foreground">
-                  Open the review queue to confirm, reject, or override uncertain
+                  Open the ledger needs-attention view to confirm, reject, or override uncertain
                   links. Overrides are flagged on the trace and kept on future
                   matching runs.
                 </p>

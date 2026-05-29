@@ -7,6 +7,7 @@ type PageLayoutProps = {
   className?: string;
   breadcrumbs?: BreadcrumbItem[];
   breadcrumbLabel?: string;
+  showBreadcrumbs?: boolean;
 };
 
 export function PageLayout({
@@ -14,16 +15,19 @@ export function PageLayout({
   className,
   breadcrumbs,
   breadcrumbLabel,
+  showBreadcrumbs = true,
 }: PageLayoutProps) {
   return (
     <main
       className={cn("w-full px-4 py-10 sm:px-6 lg:px-8", className)}
     >
-      <AppBreadcrumb
-        items={breadcrumbs}
-        lastLabel={breadcrumbLabel}
-        className="mb-6"
-      />
+      {showBreadcrumbs ? (
+        <AppBreadcrumb
+          items={breadcrumbs}
+          lastLabel={breadcrumbLabel}
+          className="mb-6"
+        />
+      ) : null}
       {children}
     </main>
   );

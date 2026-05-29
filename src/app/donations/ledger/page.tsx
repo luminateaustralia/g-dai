@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { roleHasPermission } from "@/lib/auth/roles";
 import {
   buildLedger,
+  filterNeedsAttention,
   getLatestDonationImport,
 } from "@/lib/close-the-loop/queries";
 import {
@@ -27,11 +28,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TraceStatusBadge } from "@/components/donations/trace-status-badge";
+import { TraceResolveControls } from "@/components/donations/trace-resolve";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 const SELECT_CLASS =
   "h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+
+type LedgerSearchParams = {
+  search?: string;
+  category?: string;
+  status?: string;
+  source?: string;
+  view?: string;
+};
+
+function ledgerHref(params: LedgerSearchParams) {
+  const sp = new URLSearchParams();
+  if (params.view === "needs_attention") sp.set("view", "needs_attention");
+  if (params.search) sp.set("search", params.search);
+  if (params.category) sp.set("category", params.category);
+  if (params.status) sp.set("status", params.status);
+  if (params.source) sp.set("source", params.source);
+  const query = sp.toString();
+  return query ? `/donations/ledger?${query}` : "/donations/ledger";
+}
 
 export default async function LedgerPage({
   searchParams,
@@ -39,24 +61,32 @@ export default async function LedgerPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const sp = await searchParams;
+  const isNeedsAttentionView = sp.view === "needs_attention";
   const db = await getDb();
   const user = await getCurrentUser();
   const canViewSensitive = roleHasPermission(user.role, "donations.view_sensitive");
+  const canResolve = roleHasPermission(user.role, "donations.resolve");
+
+  const filterParams = {
+    search: sp.search,
+    category: sp.category,
+    status: sp.status,
+    source: sp.source,
+  };
 
   const latest = await getLatestDonationImport(db);
-  const rows = latest
-    ? await buildLedger(
-        db,
-        latest.id,
-        {
-          search: sp.search,
-          category: sp.category,
-          status: sp.status,
-          source: sp.source,
-        },
-        canViewSensitive
-      )
+  const allRows = latest
+    ? await buildLedger(db, latest.id, filterParams, canViewSensitive)
     : [];
+  const needsAttentionCount = filterNeedsAttention(allRows).length;
+  const rows = isNeedsAttentionView ? filterNeedsAttention(allRows) : allRows;
+
+  const preservedParams = {
+    search: sp.search,
+    category: sp.category,
+    status: sp.status,
+    source: sp.source,
+  };
 
   return (
     <PageLayout>
@@ -76,9 +106,35 @@ export default async function LedgerPage({
           Donation ledger
         </h1>
         <p className="text-muted-foreground">
-          Every donated item, linked to its donor and recipient shelter where a
-          reliable match exists.
+          {isNeedsAttentionView
+            ? "Donations that are unmatched, uncertain, or need a human decision. Confirming or rejecting a link marks it as a manual override that the matching engine will preserve."
+            : "Every donated item, linked to its donor and recipient shelter where a reliable match exists."}
         </p>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Link
+          href={ledgerHref(preservedParams)}
+          className={cn(
+            "inline-flex h-8 items-center rounded-lg border px-3 text-sm font-medium transition-colors",
+            !isNeedsAttentionView
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-input bg-background hover:bg-muted"
+          )}
+        >
+          All donations
+        </Link>
+        <Link
+          href={ledgerHref({ ...preservedParams, view: "needs_attention" })}
+          className={cn(
+            "inline-flex h-8 items-center rounded-lg border px-3 text-sm font-medium transition-colors",
+            isNeedsAttentionView
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-input bg-background hover:bg-muted"
+          )}
+        >
+          Needs attention ({needsAttentionCount})
+        </Link>
       </div>
 
       <Card className="mt-6">
@@ -90,6 +146,9 @@ export default async function LedgerPage({
         </CardHeader>
         <CardContent>
           <form className="flex flex-wrap items-end gap-3" method="get">
+            {isNeedsAttentionView ? (
+              <input type="hidden" name="view" value="needs_attention" />
+            ) : null}
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground" htmlFor="search">
                 Search
@@ -161,13 +220,22 @@ export default async function LedgerPage({
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>
-            {rows.length} donation{rows.length === 1 ? "" : "s"}
+            {isNeedsAttentionView
+              ? `${rows.length} record${rows.length === 1 ? "" : "s"} need attention`
+              : `${rows.length} donation${rows.length === 1 ? "" : "s"}`}
           </CardTitle>
+          {isNeedsAttentionView ? (
+            <CardDescription>
+              Resolve links to improve donor-to-shelter traceability coverage.
+            </CardDescription>
+          ) : null}
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No donations match these filters.
+              {isNeedsAttentionView
+                ? "Nothing to review. Every donation has a confident match."
+                : "No donations match these filters."}
             </p>
           ) : (
             <Table>
@@ -179,7 +247,11 @@ export default async function LedgerPage({
                   <TableHead className="text-right">Qty</TableHead>
                   <TableHead>Shelter</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead></TableHead>
+                  {isNeedsAttentionView ? (
+                    <TableHead>Resolve</TableHead>
+                  ) : (
+                    <TableHead></TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -203,7 +275,9 @@ export default async function LedgerPage({
                           {row.donorName ?? "Donor"}
                         </Link>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">
+                          {row.donorName ?? "—"}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -232,8 +306,19 @@ export default async function LedgerPage({
                     <TableCell className="text-muted-foreground">
                       {row.fulfilmentDate ?? row.dispatchDate ?? "—"}
                     </TableCell>
-                    <TableCell className="text-right">
-                      {row.traceId ? (
+                    <TableCell className={isNeedsAttentionView ? undefined : "text-right"}>
+                      {isNeedsAttentionView ? (
+                        row.traceId ? (
+                          <TraceResolveControls
+                            traceId={row.traceId}
+                            canResolve={canResolve}
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            No trace record
+                          </span>
+                        )
+                      ) : row.traceId ? (
                         <Link
                           href={`/donations/traces/${row.traceId}`}
                           className="text-sm text-primary hover:underline"

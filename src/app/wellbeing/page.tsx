@@ -146,7 +146,7 @@ function WellbeingDashboard({
             compared together.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <WellbeingJourneyChart data={dashboard.journey} />
         </CardContent>
       </Card>

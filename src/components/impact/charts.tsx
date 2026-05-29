@@ -35,8 +35,8 @@ export type MovementDatum = {
 
 export function DomainMovementChart({ data }: { data: MovementDatum[] }) {
   return (
-    <ChartContainer config={movementConfig} className="h-80 w-full">
-      <BarChart data={data} margin={{ left: -12, right: 8 }}>
+    <ChartContainer config={movementConfig} className="aspect-auto h-80 w-full">
+      <BarChart data={data} margin={{ left: 4, right: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="label"
@@ -66,7 +66,7 @@ export function ChangeChart({ data }: { data: ChangeDatum[] }) {
     change: { label: "Change (Baseline → 6 months)" },
   } satisfies ChartConfig;
   return (
-    <ChartContainer config={config} className="h-80 w-full">
+    <ChartContainer config={config} className="aspect-auto h-80 w-full">
       <BarChart data={data} layout="vertical" margin={{ left: 16, right: 16 }}>
         <CartesianGrid horizontal={false} />
         <XAxis type="number" tickLine={false} axisLine={false} />
@@ -105,8 +105,8 @@ export type CohortDatum = {
 
 export function CohortComparisonChart({ data }: { data: CohortDatum[] }) {
   return (
-    <ChartContainer config={cohortConfig} className="h-72 w-full">
-      <BarChart data={data} margin={{ left: -12, right: 8 }}>
+    <ChartContainer config={cohortConfig} className="aspect-auto h-72 w-full">
+      <BarChart data={data} margin={{ left: 4, right: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="cohort"
@@ -131,8 +131,8 @@ export function CompletionChart({ data }: { data: CompletionDatum[] }) {
     completion: { label: "Completion %", color: "var(--chart-2)" },
   } satisfies ChartConfig;
   return (
-    <ChartContainer config={config} className="h-72 w-full">
-      <BarChart data={data} margin={{ left: -12, right: 8 }}>
+    <ChartContainer config={config} className="aspect-auto h-72 w-full">
+      <BarChart data={data} margin={{ left: 4, right: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="label"
@@ -172,8 +172,8 @@ export type JourneyDatum = {
  */
 export function WellbeingJourneyChart({ data }: { data: JourneyDatum[] }) {
   return (
-    <ChartContainer config={journeyConfig} className="h-80 w-full">
-      <LineChart data={data} margin={{ left: -8, right: 16, top: 8 }}>
+    <ChartContainer config={journeyConfig} className="aspect-auto h-80 w-full">
+      <LineChart data={data} margin={{ left: 4, right: 16, top: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="stage" tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
         <YAxis
@@ -233,8 +233,8 @@ export type PeriodTrendDatum = {
  */
 export function PeriodTrendChart({ data }: { data: PeriodTrendDatum[] }) {
   return (
-    <ChartContainer config={periodTrendConfig} className="h-80 w-full">
-      <LineChart data={data} margin={{ left: -8, right: 16, top: 8 }}>
+    <ChartContainer config={periodTrendConfig} className="aspect-auto h-80 w-full">
+      <LineChart data={data} margin={{ left: 4, right: 16, top: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="label"

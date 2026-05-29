@@ -14,17 +14,21 @@ import {
 
 import { PageLayout } from "@/components/page-layout";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  PERSONAL_WELLBEING_INDEX_CLIENT_TRACKER_LABEL,
+  PERSONAL_WELLBEING_INDEX_LABEL,
+} from "@/lib/impact-reporting/metrics/definitions";
 import { cn } from "@/lib/utils";
 
 const TODAY_ITEMS = [
-  "Import the PWI client tracker and generate quarterly reports",
+  `Import the ${PERSONAL_WELLBEING_INDEX_CLIENT_TRACKER_LABEL} and generate quarterly reports`,
   "Domain movement, cohort charts, and validation before publish",
   "AI assistant grounded in a frozen report snapshot",
 ];
 
 const TOMORROW_ITEMS = [
-  "CSnet outcomes alongside PWI in one shared data home",
+  `CSnet outcomes alongside the ${PERSONAL_WELLBEING_INDEX_LABEL} in one shared data home`,
   "Follow participants across intakes from baseline to 12 months",
   "Compare intakes side by side in seconds, not spreadsheets",
   "Surface equity gaps by housing, language, site, and more",
@@ -36,7 +40,7 @@ const VISION_PILLARS = [
   {
     title: "One data home",
     description:
-      "CSnet exports and the PWI tracker feed the same wellbeing metrics. No duplicate definitions, no reconciling two systems by hand.",
+      `CSnet exports and the ${PERSONAL_WELLBEING_INDEX_LABEL} tracker feed the same wellbeing metrics. No duplicate definitions, no reconciling two systems by hand.`,
     icon: Layers,
     accent: "from-violet-500/20 to-violet-500/5 border-violet-500/30 text-violet-700 dark:text-violet-300",
     iconBg: "bg-violet-500/15 text-violet-600",
@@ -52,7 +56,7 @@ const VISION_PILLARS = [
   {
     title: "Compare intakes instantly",
     description:
-      "Pick Intake 24 and Intake 26 and see their PWI trajectories on one chart. The question the team asks today becomes a click.",
+      `Pick Intake 24 and Intake 26 and see their ${PERSONAL_WELLBEING_INDEX_LABEL} trajectories on one chart. The question the team asks today becomes a click.`,
     icon: GitCompareArrows,
     accent: "from-emerald-500/20 to-emerald-500/5 border-emerald-500/30 text-emerald-700 dark:text-emerald-300",
     iconBg: "bg-emerald-500/15 text-emerald-600",
@@ -153,12 +157,16 @@ export default function FutureWellnessPage() {
               </li>
             ))}
           </ul>
-          <Button variant="outline" size="sm" className="mt-6" asChild>
-            <Link href="/wellbeing">
-              See current wellbeing
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
+          <Link
+            href="/wellbeing"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-6 w-fit"
+            )}
+          >
+            See current wellbeing
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
 
         <div className="rounded-2xl border border-violet-500/25 bg-linear-to-br from-violet-500/10 via-fuchsia-500/5 to-transparent p-6 sm:p-8">

@@ -4,6 +4,7 @@ import {
   Heart,
   Home,
   Lightbulb,
+  Presentation,
   Route,
   Upload,
   type LucideIcon,
@@ -32,7 +33,6 @@ export const NAV_ITEMS: NavItem[] = [
     children: [
       { href: "/donations", label: "Dashboard" },
       { href: "/donations/ledger", label: "Donation ledger" },
-      { href: "/donations/queue", label: "Review queue" },
       { href: "/donations/shelters", label: "Shelters" },
       { href: "/donations/thank-you", label: "Thank-you emails" },
       {
@@ -44,11 +44,15 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   { href: "/wellbeing", label: "Wellbeing", icon: Heart },
+  { href: "/presentation", label: "Presentation", icon: Presentation },
   {
     href: "/future",
     label: "Future",
     icon: Lightbulb,
-    children: [{ href: "/future/wellness", label: "Wellbeing vision" }],
+    children: [
+      { href: "/future/impact", label: "Impact vision" },
+      { href: "/future/wellness", label: "Wellbeing vision" },
+    ],
   },
 ];
 
@@ -69,11 +73,9 @@ export function isSubNavActive(pathname: string, href: string) {
     return (
       pathname.startsWith("/donations/ledger") ||
       pathname.startsWith("/donations/donors") ||
-      pathname.startsWith("/donations/traces")
+      pathname.startsWith("/donations/traces") ||
+      pathname.startsWith("/donations/queue")
     );
-  }
-  if (href === "/donations/queue") {
-    return pathname.startsWith("/donations/queue");
   }
   if (href === "/donations/shelters") {
     return pathname.startsWith("/donations/shelters");

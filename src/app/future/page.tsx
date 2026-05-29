@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Heart, Lightbulb } from "lucide-react";
+import { ArrowRight, Heart, Lightbulb, Route } from "lucide-react";
 
 import { PageLayout } from "@/components/page-layout";
 import {
@@ -10,6 +10,15 @@ import {
 } from "@/components/ui/card";
 
 const FUTURE_AREAS = [
+  {
+    href: "/future/impact",
+    title: "Impact",
+    description:
+      "A presentation-style vision for closing the loop from donor orders to shelter fulfillments, with ledgers, reports, and forecasting.",
+    icon: Route,
+    gradient: "from-orange-500/15 via-amber-500/10 to-teal-500/10",
+    iconBg: "bg-orange-500/15 text-orange-600",
+  },
   {
     href: "/future/wellness",
     title: "Wellbeing",

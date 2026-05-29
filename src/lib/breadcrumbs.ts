@@ -45,10 +45,6 @@ export function buildBreadcrumbs(
       crumbs: () => [HOME, IMPACT, { label: "Donation ledger" }],
     },
     {
-      pattern: /^\/donations\/queue$/,
-      crumbs: () => [HOME, IMPACT, { label: "Review queue" }],
-    },
-    {
       pattern: /^\/donations\/shelters$/,
       crumbs: () => [HOME, IMPACT, { label: "Shelters" }],
     },
@@ -70,7 +66,10 @@ export function buildBreadcrumbs(
       crumbs: () => [
         HOME,
         IMPACT,
-        { label: "Review queue", href: "/donations/queue" },
+        {
+          label: "Donation ledger",
+          href: "/donations/ledger?view=needs_attention",
+        },
         { label: "Donation trace" },
       ],
     },
@@ -112,8 +111,20 @@ export function buildBreadcrumbs(
       crumbs: () => [HOME, { label: "AI" }],
     },
     {
+      pattern: /^\/presentation$/,
+      crumbs: () => [HOME, { label: "Presentation" }],
+    },
+    {
       pattern: /^\/future$/,
       crumbs: () => [HOME, { label: "Future" }],
+    },
+    {
+      pattern: /^\/future\/impact$/,
+      crumbs: () => [
+        HOME,
+        { label: "Future", href: "/future" },
+        { label: "Impact vision" },
+      ],
     },
     {
       pattern: /^\/future\/wellness$/,

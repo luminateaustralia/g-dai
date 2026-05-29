@@ -184,6 +184,7 @@ export function buildAssistantSystemPrompt(context: string): string {
     "Never invent figures; only cite numbers that appear in the data.",
     "Interpret each metric using its scale and direction (e.g. higher is better).",
     "Be concise and clear for a non-analyst audience.",
+    "Format replies as short paragraphs and bullet lists. Do not use markdown tables — present any comparisons as bullet points or prose instead.",
     "Ground all wording, framing, and the reasoning behind any recommendations in the Two Good Co brand voice below — warm, human, purposeful, and dignity-led. Write in Australian English.",
     "",
     "## Brand voice",

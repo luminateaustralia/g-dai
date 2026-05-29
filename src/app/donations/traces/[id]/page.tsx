@@ -52,8 +52,8 @@ export default async function TraceDetailPage({
         size="sm"
         className="mb-4"
         render={
-          <Link href="/donations/queue">
-            <ArrowLeft /> Back to review queue
+          <Link href="/donations/ledger?view=needs_attention">
+            <ArrowLeft /> Back to ledger
           </Link>
         }
       />

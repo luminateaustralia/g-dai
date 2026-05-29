@@ -55,23 +55,37 @@ export default async function DonationsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Impact summary</CardTitle>
-            <CardDescription>
-              {latest
-                ? `Latest import: ${latest.filename}`
-                : "No data imported yet."}
-            </CardDescription>
+            {!latest ? (
+              <CardDescription>No data imported yet.</CardDescription>
+            ) : null}
           </CardHeader>
           <CardContent>
             {stats ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Stat label="Orders" value={stats.orders} />
-                <Stat label="Donations" value={stats.fulfilments} />
-                <Stat label="Shelters" value={stats.shelters} />
-                <Stat label="Confirmed" value={stats.matched} />
-                <Stat label="Likely" value={stats.partial} />
-                <Stat label="Needs review" value={stats.needsReview} />
-                <Stat label="Unmatched" value={stats.unmatched} />
-                <Stat label="Untraced" value={stats.untraced} />
+                <Stat label="Donations" value={stats.fulfilments} href="/donations/ledger" />
+                <Stat label="Shelters" value={stats.shelters} href="/donations/shelters" />
+                <Stat label="Confirmed" value={stats.matched} href="/donations/ledger?status=matched" />
+                <Stat
+                  label="Likely"
+                  value={stats.partial}
+                  href="/donations/ledger?view=needs_attention&status=partial"
+                />
+                <Stat
+                  label="Needs review"
+                  value={stats.needsReview}
+                  href="/donations/ledger?view=needs_attention&status=needs_review"
+                />
+                <Stat
+                  label="Unmatched"
+                  value={stats.unmatched}
+                  href="/donations/ledger?view=needs_attention&status=unmatched"
+                />
+                <Stat
+                  label="Untraced"
+                  value={stats.untraced}
+                  href="/donations/ledger?view=needs_attention&status=untraced"
+                />
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
@@ -140,12 +154,33 @@ export default async function DonationsPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border p-3">
+function Stat({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: number;
+  href?: string;
+}) {
+  const content = (
+    <>
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="font-heading text-xl font-semibold tabular-nums">{value}</p>
-    </div>
+    </>
+  );
+
+  if (!href) {
+    return <div className="rounded-lg border p-3">{content}</div>;
+  }
+
+  return (
+    <Link
+      href={href}
+      className="block rounded-lg border p-3 transition-colors hover:bg-muted/50"
+    >
+      {content}
+    </Link>
   );
 }
 

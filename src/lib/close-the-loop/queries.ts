@@ -351,21 +351,15 @@ export async function getDonorProfile(db: Database, donorId: string) {
   return { donor: record, name: donorName(record), orders, traces };
 }
 
-export type QueueRow = LedgerRow;
+export const NEEDS_ATTENTION_STATUSES: readonly (TraceStatus | "untraced")[] = [
+  "needs_review",
+  "partial",
+  "unmatched",
+  "untraced",
+];
 
-export async function listReviewQueue(
-  db: Database,
-  importId: string,
-  canViewSensitive: boolean
-): Promise<QueueRow[]> {
-  const ledger = await buildLedger(db, importId, {}, canViewSensitive);
-  const needsAttention: (TraceStatus | "untraced")[] = [
-    "needs_review",
-    "partial",
-    "unmatched",
-    "untraced",
-  ];
-  return ledger.filter((row) => needsAttention.includes(row.status));
+export function filterNeedsAttention(rows: LedgerRow[]): LedgerRow[] {
+  return rows.filter((row) => NEEDS_ATTENTION_STATUSES.includes(row.status));
 }
 
 export async function getTraceDetail(

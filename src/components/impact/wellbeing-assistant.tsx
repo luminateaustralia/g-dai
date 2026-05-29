@@ -149,7 +149,7 @@ export function WellbeingAssistant({
       >
         <Sparkles /> {triggerLabel}
       </SheetTrigger>
-      <SheetContent className="sm:max-w-md">
+      <SheetContent className="sm:max-w-xl">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>{description}</SheetDescription>

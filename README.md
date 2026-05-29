@@ -1,13 +1,67 @@
 # Two Good Co · Close the Loop
 
-A unified Next.js app on Cloudflare Workers that delivers two "Close the Loop" capabilities for Two Good Co:
+A unified Next.js app on Cloudflare Workers that helps Two Good Co **prove donation impact** and **measure participant wellbeing** from the same platform — turning operational spreadsheets into traceable outcomes, reproducible reports, and partner-safe communications.
 
-1. **Impact reporting** — import the Personal Wellbeing Index Client Tracker, validate data quality, and generate reproducible quarterly impact reports with Personal Wellbeing Index domain movement, work-readiness indicators, cohort breakdowns and exports (PDF / CSV / XLSX).
-2. **Donation traceability** — build a unified donation ledger and trace donor orders through to the shelters that received donated meals and care packs, with a manual review queue and privacy-safe handling of sensitive shelters.
+Built with Next.js 15 (App Router, React Server Components), TypeScript, Tailwind CSS v4, shadcn/ui (Base UI), Drizzle ORM on Cloudflare D1, Cloudflare Workers AI, and deployed to Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare).
 
-Built with Next.js 15 (App Router, React Server Components), TypeScript, Tailwind CSS v4, shadcn/ui (Base UI), Drizzle ORM on Cloudflare D1, and deployed to Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare).
+> **Prototype.** Roles (`Administrator`, `Impact analyst`, `Operations`, `Viewer`) are modelled in data and switchable from the header. Permissions are enforced in server logic. Sample data is de-identified and not representative of actual service or customer information.
 
-> Access control is a prototype: roles (`Administrator`, `Impact analyst`, `Operations`, `Viewer`) are modelled in data and switchable from the header. Permissions are enforced in server logic. Sample data is de-identified.
+## Why Close the Loop
+
+Two Good Co needs to answer two related questions with confidence:
+
+1. **Where did donated meals and care packs go?** Donors and partners want to know their contribution reached the shelters and communities it was intended for — without exposing sensitive locations.
+2. **Is the program improving wellbeing?** Personal Wellbeing Index (PWI) tracker data must be validated, scored consistently, and reported in a way that holds up to scrutiny over time.
+
+Close the Loop connects import → validation → analysis → export in one place, with audit trails and role-based access so teams can work from the same source of truth.
+
+## Features
+
+### Impact — donation traceability
+
+Trace donor orders through to the shelters that received donated meals and care packs.
+
+| Area | What it does |
+|------|----------------|
+| **Dashboard** | Summary stats (orders, donations, shelters, match status) and charts by donation type and top shelters. |
+| **Donation ledger** | Unified ledger linking donors, orders, fulfilments, and traces — browse all donations or switch to the needs-attention view to confirm, reject, or override uncertain links. Manual overrides are preserved by the matching engine. |
+| **Automatic matching** | After import, infers donor-to-shelter links from product category, postcode, and quantity agreement. Each trace stores its method, confidence, and candidates considered. |
+| **Shelters** | Browse the shelter registry, including sensitive-address flags. |
+| **Partner-safe export** | Download a CSV impact file that always masks sensitive shelters, regardless of viewer role. |
+| **Thank-you emails** | Send personalised 1:1 donor thank-you emails (via Resend) summarising confirmed and likely matches for that donor only. |
+
+### Wellbeing — PWI impact reporting
+
+Import the Personal Wellbeing Index Client Tracker, validate data quality, and generate reproducible quarterly wellbeing reports.
+
+| Area | What it does |
+|------|----------------|
+| **Import review** | Preview imported observations, surface validation errors and warnings, and inspect cohort breakdowns before generating a report. |
+| **Report generation** | Freeze a snapshot of all computed metric results so a report's outputs never change, even if new data is imported later. |
+| **Dashboard & reports** | Track domain movement, work-readiness indicators, period trends, and cohort comparisons with charts and metric tables. |
+| **Exports** | Print to PDF, or download CSV / XLSX from any frozen report. |
+| **Wellbeing assistant** | Ask natural-language questions grounded only in your report figures, powered by Cloudflare Workers AI (`@cf/openai/gpt-oss-120b`). |
+
+### Shared platform
+
+| Area | What it does |
+|------|----------------|
+| **Data import** | Single hub for uploading wellbeing and donation workbooks, with import history, checksums, and purge. |
+| **Role-based access** | Four prototype roles with granular permissions (view, import, generate, resolve, sensitive data, AI). |
+| **Audit log** | Append-only audit entries for exports, matching, and other sensitive actions. |
+| **AI debug** | Test Workers AI prompts and inspect responses (`POST /api/ai/chat`). |
+| **Future** | Presentation-style vision pages for where the platform could go next (not production features). |
+
+## Tech stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | Next.js 15, React 19, TypeScript |
+| UI | Tailwind CSS v4, shadcn/ui (Base UI), Recharts |
+| Database | Cloudflare D1 via Drizzle ORM |
+| AI | Cloudflare Workers AI binding |
+| Email | Resend (thank-you emails) |
+| Runtime | Cloudflare Workers via OpenNext |
 
 ## Prerequisites: create the D1 database
 
@@ -45,13 +99,30 @@ npx drizzle-kit generate
 
 Then apply it with the `wrangler d1 migrations apply` commands above.
 
+## Optional configuration
+
+### Thank-you emails (Resend)
+
+To send donor thank-you emails, configure:
+
+| Variable | Description |
+|----------|-------------|
+| `RESEND_API_KEY` | Resend API key |
+| `RESEND_FROM_EMAIL` | Sender address, e.g. `Two Good Co <hello@twogood.com.au>` |
+
+Add these to `.dev.vars` locally or as Wrangler secrets in production.
+
+### Workers AI
+
+The Workers AI binding is configured in [`wrangler.jsonc`](wrangler.jsonc) under `"ai": { "binding": "AI" }`. The wellbeing assistant and AI debug page use this binding — no separate API key is required when deployed to Cloudflare.
+
 ## Development
 
 ```bash
 npm run dev
 ```
 
-Runs the Next.js dev server at [http://localhost:3000](http://localhost:3000). The Cloudflare bindings (including local D1) are provided automatically via OpenNext.
+Runs the Next.js dev server at [http://localhost:3000](http://localhost:3000). Cloudflare bindings (including local D1) are provided automatically via OpenNext.
 
 ## Tests
 
@@ -59,16 +130,22 @@ Runs the Next.js dev server at [http://localhost:3000](http://localhost:3000). T
 npm run test
 ```
 
-Unit tests (Vitest) cover spreadsheet import, metric calculations, data validation, product normalisation, donor-to-shelter matching, and sensitive-shelter privacy masking.
+Unit tests (Vitest) cover:
+
+- PWI tracker spreadsheet import and metric calculations
+- Data validation rules
+- Donation workbook import and product normalisation
+- Donor-to-shelter matching and scoring
+- Sensitive-shelter privacy masking
 
 ## Methodology notes
 
-- **Scoring** is configurable data (`impact_metric_definition`), seeded from the tracker's Guide sheet. Personal Wellbeing Index domains use a 0–10 scale; Financial Worry uses 1–4 with `5 = Don't know` treated as missing; confidence/voice/work-readiness use 1–5 Likert; career confidence and skills awareness use 0–10.
+- **Scoring** is configurable data (`impact_metric_definition`), seeded from the tracker's Guide sheet. PWI domains use a 0–10 scale; Financial Worry uses 1–4 with `5 = Don't know` treated as missing; confidence/voice/work-readiness use 1–5 Likert; career confidence and skills awareness use 0–10.
 - **Averages** exclude blank responses and values flagged as missing. On 0–10 scales, a dash (`-`) in the tracker is scored as **0** (not missing). Out-of-range values are flagged and excluded.
 - **Change scores** compare the baseline average to the 3-month and 6-month averages.
 - **Reproducibility** — generating a report freezes a snapshot of all computed metric results, so a report's outputs never change even if new data is imported later.
 - **Donor-to-shelter matching** infers links from product category, postcode and quantity agreement (Order IDs in customer orders and shelter dispatch sheets are separate systems and are not compared). Traces below the confidence threshold go to manual review. Each trace stores its method, confidence and the candidate orders considered for explainability.
-- **Privacy** — shelters flagged with a sensitive address have their name and precise location withheld from anyone without the sensitive-view permission and from all partner-facing exports.
+- **Privacy** — shelters flagged with a sensitive address have their name and precise location withheld from anyone without the sensitive-view permission and from all partner-facing exports and thank-you emails.
 
 ## Deploy to Cloudflare Workers
 
@@ -86,4 +163,5 @@ npm run deploy
 | `build` | Standard Next.js production build |
 | `preview` | Build and preview in the Workers runtime locally |
 | `deploy` | Build and deploy to Cloudflare Workers |
+| `upload` | Build and upload to Cloudflare (without deploying) |
 | `cf-typegen` | Generate Cloudflare binding types |

@@ -76,7 +76,7 @@ export function DonationTypeChart({
   return (
     <ChartContainer
       config={config}
-      className="mx-auto aspect-square h-72 w-full"
+      className="mx-auto aspect-auto h-72 w-full"
     >
       <PieChart>
         <ChartTooltip
@@ -143,7 +143,7 @@ export function TopSheltersChart({ data }: { data: TopShelterDatum[] }) {
   return (
     <ChartContainer
       config={config}
-      className="h-72 w-full"
+      className="aspect-auto h-72 w-full"
       style={{ height: Math.max(data.length * 40, 160) }}
     >
       <BarChart

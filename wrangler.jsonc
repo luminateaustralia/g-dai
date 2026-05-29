@@ -1,0 +1,35 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	"name": "g-dai",
+	"compatibility_date": "2025-04-01",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "g-dai"
+		}
+	],
+	"images": {
+		"binding": "IMAGES"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "g-dai-db",
+			"database_id": "1f94c4b4-f359-4574-bfbe-1640230ab9b5",
+			"migrations_dir": "migrations"
+		}
+	],
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	}
+}

@@ -26,6 +26,18 @@ import { cn } from "@/lib/utils";
 import QRCode from "react-qr-code";
 
 const LIVE_DEMO_URL = "https://g-dai.cloudepl.workers.dev/";
+const PRESENTATION_URL = "https://g-dai.cloudepl.workers.dev/presentation";
+
+const QR_CODES = [
+  {
+    url: LIVE_DEMO_URL,
+    label: "Explore the live prototype",
+  },
+  {
+    url: PRESENTATION_URL,
+    label: "Open this presentation",
+  },
+] as const;
 
 type SectionId = "problem" | "innovation" | "quality";
 
@@ -77,21 +89,25 @@ const SLIDE_TAGLINE =
 
 function LiveDemoQrCode() {
   return (
-    <div className="mt-10 flex flex-col items-center gap-3">
-      <div
-        className="rounded-2xl border bg-white p-4 shadow-sm"
-        aria-label={`QR code linking to ${LIVE_DEMO_URL}`}
-      >
-        <QRCode
-          value={LIVE_DEMO_URL}
-          size={148}
-          bgColor="#ffffff"
-          fgColor="#000000"
-        />
-      </div>
-      <p className="text-base text-muted-foreground sm:text-lg">
-        Scan to explore the live prototype
-      </p>
+    <div className="mt-10 flex flex-wrap justify-center gap-6 sm:gap-8">
+      {QR_CODES.map((item) => (
+        <div key={item.url} className="flex flex-col items-center gap-3">
+          <div
+            className="rounded-2xl border bg-white p-4 shadow-sm"
+            aria-label={`QR code linking to ${item.url}`}
+          >
+            <QRCode
+              value={item.url}
+              size={148}
+              bgColor="#ffffff"
+              fgColor="#000000"
+            />
+          </div>
+          <p className="max-w-44 text-center text-base text-muted-foreground sm:text-lg">
+            {item.label}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

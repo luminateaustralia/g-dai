@@ -34,10 +34,26 @@ export const NAV_ITEMS: NavItem[] = [
       { href: "/donations", label: "Dashboard" },
       { href: "/donations/ledger", label: "Donation ledger" },
       { href: "/donations/shelters", label: "Shelters" },
-      { href: "/donations/thank-you", label: "Thank-you emails" },
+      { href: "/donations/thank-you", label: "Thank you" },
       {
         href: "/donations/export",
         label: "Partner-safe export",
+        external: true,
+        icon: Download,
+      },
+    ],
+  },
+  {
+    href: "/donations-beta",
+    label: "Impact (Beta)",
+    icon: Route,
+    children: [
+      { href: "/donations-beta", label: "Dashboard" },
+      { href: "/donations-beta/ledger", label: "Allocation ledger" },
+      { href: "/donations-beta/reports", label: "Donor reports" },
+      {
+        href: "/donations-beta/export",
+        label: "Ledger export",
         external: true,
         icon: Download,
       },
@@ -62,7 +78,15 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
 ];
 
 export function isNavActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  if (href === "/") return pathname === "/";
+  if (href === "/donations") {
+    return (
+      pathname === "/donations" ||
+      (pathname.startsWith("/donations/") &&
+        !pathname.startsWith("/donations-beta"))
+    );
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function isSubNavActive(pathname: string, href: string) {
@@ -82,6 +106,15 @@ export function isSubNavActive(pathname: string, href: string) {
   }
   if (href === "/donations/thank-you") {
     return pathname.startsWith("/donations/thank-you");
+  }
+  if (href === "/donations-beta") {
+    return pathname === "/donations-beta";
+  }
+  if (href === "/donations-beta/ledger") {
+    return pathname.startsWith("/donations-beta/ledger");
+  }
+  if (href === "/donations-beta/reports") {
+    return pathname.startsWith("/donations-beta/reports");
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }

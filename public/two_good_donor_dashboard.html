@@ -1,0 +1,388 @@
+
+<h2 class="sr-only">Two Good Co donor impact dashboard showing meals funded, demand gap, and giving trends</h2>
+
+<style>
+  :root {
+    --tg-warm: #C8522A;
+    --tg-warm-light: #FAECE7;
+    --tg-green: #1D9E75;
+    --tg-green-light: #E1F5EE;
+    --tg-amber: #BA7517;
+    --tg-amber-light: #FAEEDA;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); }
+
+  .dash { padding: 1.5rem 1rem 2rem; max-width: 680px; }
+
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .logo-pill { background: #111; color: #fff; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.04em; white-space: nowrap; }
+  .header-title { font-size: 14px; color: var(--color-text-secondary); }
+  .header-name { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+
+  .metric-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); line-height: 1.1; }
+  .metric-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; }
+  .metric-icon { font-size: 20px; margin-bottom: 6px; }
+  .c-warm { color: var(--tg-warm); }
+  .c-green { color: var(--tg-green); }
+  .c-amber { color: var(--tg-amber); }
+
+  .section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+
+  .bowl-wrap { display: flex; align-items: flex-end; gap: 1.5rem; }
+  .bowl-visual { flex: 0 0 auto; }
+  .bowl-info { flex: 1; }
+  .bowl-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .bowl-big { font-size: 28px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+  .bowl-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; line-height: 1.5; }
+
+  .gap-bar-wrap { margin-top: 1rem; }
+  .gap-bar-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .gap-bar-track { height: 22px; background: var(--color-background-secondary); border-radius: 99px; overflow: hidden; position: relative; }
+  .gap-bar-fill { height: 100%; border-radius: 99px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; font-weight: 500; color: #fff; transition: width 1s ease; }
+  .gap-bar-legend { display: flex; gap: 16px; margin-top: 8px; font-size: 12px; color: var(--color-text-secondary); }
+  .gap-bar-legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  .streak-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+  .streak-box { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; cursor: default; position: relative; }
+  .streak-box:hover .streak-tip { display: block; }
+  .streak-tip { display: none; position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); background: var(--color-text-primary); color: var(--color-background-primary); font-size: 11px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; z-index: 10; pointer-events: none; }
+  .streak-tip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border: 4px solid transparent; border-top-color: var(--color-text-primary); }
+
+  .month-labels { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 4px; }
+  .month-lbl { width: 30px; font-size: 9px; text-align: center; color: var(--color-text-secondary); }
+
+  .impact-feed { display: flex; flex-direction: column; gap: 10px; }
+  .feed-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+  .feed-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+  .feed-content { flex: 1; }
+  .feed-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .feed-action { font-size: 12px; color: var(--color-text-secondary); }
+  .feed-time { font-size: 11px; color: var(--color-text-secondary); white-space: nowrap; }
+  .feed-badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+
+  .goal-ring-wrap { display: flex; gap: 1.5rem; align-items: center; }
+  .goal-text h3 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .goal-text p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; line-height: 1.5; }
+  .goal-milestones { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .milestone { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); }
+  .milestone i { font-size: 14px; }
+
+  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem; }
+  .cta-btn { padding: 12px 16px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; border: none; transition: opacity .15s; }
+  .cta-btn:hover { opacity: .85; }
+  .cta-primary { background: #111; color: #fff; }
+  .cta-secondary { background: var(--color-background-secondary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary); }
+
+  .chart-wrap { position: relative; height: 180px; width: 100%; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tab { padding: 5px 12px; border-radius: 99px; font-size: 12px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); background: transparent; color: var(--color-text-secondary); transition: all .15s; }
+  .tab.active { background: #111; color: #fff; border-color: transparent; }
+</style>
+
+<div class="dash">
+
+  <div class="header">
+    <div class="logo-pill">TWO GOOD CO.</div>
+    <div>
+      <div class="header-title">Your impact dashboard</div>
+      <div class="header-name">Welcome back, Sarah 👋</div>
+    </div>
+  </div>
+
+  <div class="metric-row">
+    <div class="metric-card">
+      <div class="metric-icon"><i class="ti ti-bowl-filled c-warm" aria-hidden="true"></i></div>
+      <div class="metric-label">Your meals funded</div>
+      <div class="metric-value c-warm">1,247</div>
+      <div class="metric-sub">since Jan 2023</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon"><i class="ti ti-heart c-green" aria-hidden="true"></i></div>
+      <div class="metric-label">Women reached</div>
+      <div class="metric-value c-green">89</div>
+      <div class="metric-sub">unique women helped</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon"><i class="ti ti-flame c-amber" aria-hidden="true"></i></div>
+      <div class="metric-label">Giving streak</div>
+      <div class="metric-value c-amber">7 mo</div>
+      <div class="metric-sub">keep it going!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">This month's bowl — June 2025</div>
+    <div class="bowl-wrap">
+      <div class="bowl-visual">
+        <svg width="110" height="110" viewBox="0 0 110 110" aria-hidden="true">
+          <defs>
+            <clipPath id="bowlClip">
+              <ellipse cx="55" cy="58" rx="42" ry="30"/>
+            </clipPath>
+          </defs>
+          <ellipse cx="55" cy="58" rx="42" ry="30" fill="#F1EFE8"/>
+          <rect x="13" y="44" width="84" height="30" fill="#F0997B" clip-path="url(#bowlClip)" opacity="0.6"/>
+          <rect x="13" y="54" width="84" height="20" fill="#C8522A" clip-path="url(#bowlClip)" opacity="0.7"/>
+          <ellipse cx="55" cy="44" rx="42" ry="12" fill="none" stroke="#C8522A" stroke-width="2.5"/>
+          <ellipse cx="55" cy="44" rx="42" ry="12" fill="#FAECE7"/>
+          <text x="55" y="49" text-anchor="middle" font-size="11" font-weight="500" fill="#993C1D">73% filled</text>
+          <path d="M30 70 Q55 80 80 70" fill="none" stroke="#993C1D" stroke-width="1.5" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="bowl-info">
+        <div class="bowl-label">Meals funded so far</div>
+        <div class="bowl-big"><span style="color:var(--tg-warm)">219</span> <span style="font-size:16px;color:var(--color-text-secondary)">/ 300 goal</span></div>
+        <div class="gap-bar-wrap">
+          <div class="gap-bar-track">
+            <div class="gap-bar-fill" style="width:73%;background:var(--tg-warm);">219</div>
+          </div>
+          <div class="gap-bar-legend">
+            <span><span class="dot" style="background:var(--tg-warm)"></span>Funded (219)</span>
+            <span><span class="dot" style="background:#D3D1C7"></span>Still needed (81)</span>
+          </div>
+        </div>
+        <div class="bowl-desc">81 more meals needed to cover full June demand.<br>Every $7 fills one bowl. 🍲</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Meals funded over time</div>
+    <div class="tabs">
+      <button class="tab active" onclick="showChart('monthly')">Monthly</button>
+      <button class="tab" onclick="showChart('cumulative')">Cumulative</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="mealsChart" role="img" aria-label="Bar chart of meals funded per month, Jan through Jun 2025. Highest month was April with 310 meals.">Monthly meals funded: Jan 180, Feb 205, Mar 190, Apr 310, May 285, Jun 219 (ongoing).</canvas>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--color-text-secondary);">
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#C8522A;"></span>Meals funded</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#D3D1C7;border:1px dashed #888;"></span>Monthly demand</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Your giving history — last 12 months</div>
+    <div class="month-labels" id="monthLabels"></div>
+    <div class="streak-row" id="streakBoxes"></div>
+    <div style="display:flex;gap:12px;margin-top:10px;font-size:12px;color:var(--color-text-secondary);">
+      <span style="display:flex;align-items:center;gap:5px;"><span class="dot" style="background:#C8522A;"></span>Active month</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span class="dot" style="background:#F5C4B3;"></span>Small gift</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span class="dot" style="background:#D3D1C7;"></span>No donation</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Monthly demand vs. supply</div>
+    <div class="chart-wrap" style="height:160px;">
+      <canvas id="demandChart" role="img" aria-label="Line chart comparing meal demand versus meals funded each month.">Demand consistently around 300 meals/month. Funded varies from 180 to 310.</canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Recent impact moments</div>
+    <div class="impact-feed">
+      <div class="feed-item">
+        <div class="feed-avatar" style="background:#FAECE7;color:#993C1D;">S</div>
+        <div class="feed-content">
+          <div class="feed-name">You donated $35</div>
+          <div class="feed-action">→ Funded <strong>5 meals</strong> for women in Western Sydney</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          <div class="feed-time">2d ago</div>
+          <span class="feed-badge" style="background:#E1F5EE;color:#0F6E56;">✓ Delivered</span>
+        </div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-avatar" style="background:#E1F5EE;color:#0F6E56;">🍲</div>
+        <div class="feed-content">
+          <div class="feed-name">Community milestone!</div>
+          <div class="feed-action">Two Good reached <strong>50,000 meals donated</strong> — you were part of this</div>
+        </div>
+        <div class="feed-time">1wk ago</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-avatar" style="background:#FAEEDA;color:#854F0B;">A</div>
+        <div class="feed-content">
+          <div class="feed-name">Ana's story</div>
+          <div class="feed-action">"The meals gave me strength to start rebuilding." — Women's refuge, Sydney</div>
+        </div>
+        <div class="feed-time">2wk ago</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Your next goal</div>
+    <div class="goal-ring-wrap">
+      <svg width="90" height="90" viewBox="0 0 90 90" aria-hidden="true">
+        <circle cx="45" cy="45" r="36" fill="none" stroke="#F1EFE8" stroke-width="10"/>
+        <circle cx="45" cy="45" r="36" fill="none" stroke="#C8522A" stroke-width="10"
+          stroke-dasharray="226" stroke-dashoffset="61" stroke-linecap="round"
+          transform="rotate(-90 45 45)"/>
+        <text x="45" y="41" text-anchor="middle" font-size="14" font-weight="500" fill="var(--color-text-primary)">1,247</text>
+        <text x="45" y="55" text-anchor="middle" font-size="10" fill="var(--color-text-secondary)">/ 1,500</text>
+      </svg>
+      <div class="goal-text">
+        <h3>253 meals to your next badge</h3>
+        <p>Reach 1,500 meals to unlock the <strong>Sustainer</strong> badge — you're 83% there!</p>
+        <div class="goal-milestones">
+          <div class="milestone"><i class="ti ti-check c-green" aria-hidden="true"></i><span>500 meals — <em>Nourisher</em> ✓</span></div>
+          <div class="milestone"><i class="ti ti-check c-green" aria-hidden="true"></i><span>1,000 meals — <em>Champion</em> ✓</span></div>
+          <div class="milestone"><i class="ti ti-lock c-amber" aria-hidden="true"></i><span>1,500 meals — <em>Sustainer</em> 🔒</span></div>
+          <div class="milestone"><i class="ti ti-lock" aria-hidden="true"></i><span>2,500 meals — <em>Changemaker</em> 🔒</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <button class="cta-btn cta-primary" onclick="sendPrompt('I want to donate more meals to Two Good Co — how can I help close the gap this month?')">Donate meals now ↗</button>
+    <button class="cta-btn cta-secondary" onclick="sendPrompt('Show me a breakdown of who my donations have helped at Two Good Co')">See your full story ↗</button>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const months = ['Jan','Feb','Mar','Apr','May','Jun'];
+const funded = [180,205,190,310,285,219];
+const demand = [290,290,300,300,295,300];
+
+const chartColors = {
+  warm: '#C8522A',
+  warmLight: '#F5C4B3',
+  gray: '#B4B2A9',
+  grayLight: '#D3D1C7',
+  green: '#1D9E75'
+};
+
+let currentChart = null;
+
+function showChart(type) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (currentChart) currentChart.destroy();
+
+  const ctx = document.getElementById('mealsChart').getContext('2d');
+
+  if (type === 'monthly') {
+    currentChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [
+          {
+            label: 'Meals funded',
+            data: funded,
+            backgroundColor: months.map((m, i) => i === months.length - 1 ? chartColors.warmLight : chartColors.warm),
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+          {
+            label: 'Monthly demand',
+            data: demand,
+            type: 'line',
+            borderColor: chartColors.gray,
+            borderWidth: 2,
+            borderDash: [5,4],
+            pointRadius: 0,
+            fill: false,
+            tension: 0.3,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: ${c.raw} meals` } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 11 }, callback: v => v + ' meals' }, min: 0, max: 350 }
+        }
+      }
+    });
+  } else {
+    const cumFunded = funded.reduce((a, v, i) => { a.push((a[i-1]||0)+v); return a; }, []);
+    const cumDemand = demand.reduce((a, v, i) => { a.push((a[i-1]||0)+v); return a; }, []);
+    currentChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'Cumulative funded', data: cumFunded, borderColor: chartColors.warm, backgroundColor: 'rgba(200,82,42,0.08)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: chartColors.warm },
+          { label: 'Cumulative demand', data: cumDemand, borderColor: chartColors.gray, borderDash: [5,4], fill: false, tension: 0.3, pointRadius: 0 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 11 }, callback: v => v } }
+        }
+      }
+    });
+  }
+}
+
+showChart('monthly');
+
+const demCtx = document.getElementById('demandChart').getContext('2d');
+new Chart(demCtx, {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'Demand', data: demand, borderColor: chartColors.gray, borderDash: [5,4], fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: chartColors.gray },
+      { label: 'Funded', data: funded, borderColor: chartColors.warm, backgroundColor: 'rgba(200,82,42,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: chartColors.warm }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: ${c.raw} meals` } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 11 } }, min: 0, max: 360 }
+    }
+  }
+});
+
+const streakData = [
+  {lbl:'Jul',meals:0},{lbl:'Aug',meals:0},{lbl:'Sep',meals:45},{lbl:'Oct',meals:0},{lbl:'Nov',meals:85},
+  {lbl:'Dec',meals:120},{lbl:'Jan',meals:180},{lbl:'Feb',meals:205},{lbl:'Mar',meals:190},{lbl:'Apr',meals:310},{lbl:'May',meals:285},{lbl:'Jun',meals:219}
+];
+
+const mlDiv = document.getElementById('monthLabels');
+const sbDiv = document.getElementById('streakBoxes');
+
+streakData.forEach(d => {
+  const lbl = document.createElement('div');
+  lbl.className = 'month-lbl';
+  lbl.textContent = d.lbl;
+  mlDiv.appendChild(lbl);
+
+  const box = document.createElement('div');
+  box.className = 'streak-box';
+  let bg, textColor;
+  if (d.meals === 0) { bg = '#D3D1C7'; textColor = '#888'; }
+  else if (d.meals < 100) { bg = '#F5C4B3'; textColor = '#993C1D'; }
+  else if (d.meals < 250) { bg = '#F0997B'; textColor = '#712B13'; }
+  else { bg = '#C8522A'; textColor = '#fff'; }
+  box.style.background = bg;
+  box.style.color = textColor;
+  if (d.meals > 0) box.textContent = d.meals;
+
+  const tip = document.createElement('div');
+  tip.className = 'streak-tip';
+  tip.textContent = d.meals > 0 ? `${d.lbl}: ${d.meals} meals` : `${d.lbl}: no donation`;
+  box.appendChild(tip);
+  sbDiv.appendChild(box);
+});
+</script>

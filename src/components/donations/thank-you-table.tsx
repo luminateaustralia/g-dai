@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
-import { Eye, Loader2, Mail } from "lucide-react";
+import { Eye, Loader2, Mail, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -104,6 +105,20 @@ export function ThankYouTable({ recipients, canSend }: ThankYouTableProps) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!recipient.donorId}
+                    render={
+                      recipient.donorId ? (
+                        <Link href={`/donations/thank-you/${recipient.donorId}`}>
+                          <TrendingUp />
+                          Impact tracker
+                        </Link>
+                      ) : undefined
+                    }
+                  />
                   <Button
                     type="button"
                     variant="outline"

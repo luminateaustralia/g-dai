@@ -49,7 +49,7 @@ export default async function ThankYouPage() {
 
       <div className="flex flex-col gap-2">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Thank-you emails
+          Thank you
         </h1>
         <p className="text-muted-foreground">
           Send personalised 1:1 thank-you emails to donors using the same

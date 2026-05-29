@@ -9,6 +9,10 @@ type BuildBreadcrumbsOptions = {
 
 const HOME: BreadcrumbItem = { label: "Home", href: "/" };
 const IMPACT: BreadcrumbItem = { label: "Impact", href: "/donations" };
+const IMPACT_BETA: BreadcrumbItem = {
+  label: "Impact (Beta)",
+  href: "/donations-beta",
+};
 const WELLBEING: BreadcrumbItem = { label: "Wellbeing", href: "/wellbeing" };
 
 function withLastLabel(
@@ -59,7 +63,16 @@ export function buildBreadcrumbs(
     },
     {
       pattern: /^\/donations\/thank-you$/,
-      crumbs: () => [HOME, IMPACT, { label: "Thank-you emails" }],
+      crumbs: () => [HOME, IMPACT, { label: "Thank you" }],
+    },
+    {
+      pattern: /^\/donations\/thank-you\/[^/]+$/,
+      crumbs: () => [
+        HOME,
+        IMPACT,
+        { label: "Thank you", href: "/donations/thank-you" },
+        { label: "Impact tracker" },
+      ],
     },
     {
       pattern: /^\/donations\/traces\/[^/]+$/,
@@ -80,6 +93,35 @@ export function buildBreadcrumbs(
         IMPACT,
         { label: "Donation ledger", href: "/donations/ledger" },
         { label: "Donor" },
+      ],
+    },
+    {
+      pattern: /^\/donations-beta$/,
+      crumbs: () => [HOME, { label: "Impact (Beta)" }],
+    },
+    {
+      pattern: /^\/donations-beta\/ledger$/,
+      crumbs: () => [
+        HOME,
+        IMPACT_BETA,
+        { label: "Allocation ledger" },
+      ],
+    },
+    {
+      pattern: /^\/donations-beta\/reports$/,
+      crumbs: () => [
+        HOME,
+        IMPACT_BETA,
+        { label: "Donor reports" },
+      ],
+    },
+    {
+      pattern: /^\/donations-beta\/reports\/[^/]+$/,
+      crumbs: () => [
+        HOME,
+        IMPACT_BETA,
+        { label: "Donor reports", href: "/donations-beta/reports" },
+        { label: "Impact report" },
       ],
     },
     {

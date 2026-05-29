@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { Menu } from "lucide-react";
 
 import { RoleSwitcher } from "@/components/role-switcher";
@@ -27,6 +29,19 @@ export function SiteHeader({ userName, userRole }: SiteHeaderProps) {
         >
           <Menu />
         </Button>
+        <Link
+          href="/"
+          className="flex items-center md:hidden"
+          aria-label="Close the Loop home"
+        >
+          <Image
+            src="/two-good-logo.svg"
+            alt="Two Good Co"
+            width={28}
+            height={28}
+            priority
+          />
+        </Link>
         <div className="ml-auto flex items-center gap-2">
           <span className="hidden text-xs text-muted-foreground lg:inline">
             {userName}

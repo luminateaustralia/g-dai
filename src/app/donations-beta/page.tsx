@@ -14,6 +14,7 @@ import {
   LoadDemoScenarioButton,
   RunAllocationButton,
 } from "@/components/donations-beta/allocation-actions";
+import { GapStatCard } from "@/components/donations-beta/gap-marketing-modal";
 import {
   Card,
   CardContent,
@@ -77,7 +78,7 @@ export default async function DonationsBetaPage() {
             {stats ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <Stat label="Allocated" value={stats.totalAllocated} />
-                <Stat label="Too Good gap" value={stats.totalGap} />
+                <GapStatCard stats={stats} />
                 <Stat label="Carry-forward" value={stats.carryForwardTotal} />
                 <Stat label="Weeks" value={stats.weekCount} />
                 <Stat label="Ledger rows" value={stats.ledgerRowCount} />

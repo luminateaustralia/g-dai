@@ -30,6 +30,21 @@ Trace donor orders through to the shelters that received donated meals and care 
 | **Partner-safe export** | Download a CSV impact file that always masks sensitive shelters, regardless of viewer role. |
 | **Thank-you emails** | Send personalised 1:1 donor thank-you emails (via Resend) summarising confirmed and likely matches for that donor only. |
 
+### Impact (Beta) — weekly allocation ledger
+
+A parallel prototype at `/donations-beta` that implements the Close the Loop weekly allocation model. It does **not** replace the confidence-based traceability flow above — both can run from the same imported workbook.
+
+| Area | What it does |
+|------|----------------|
+| **Dashboard** | Allocation summary (allocated, Too Good gap, carry-forward), pool breakdown (meals vs care packs), matching weeks, demo loader, and manual re-run. |
+| **Allocation ledger** | Source-of-truth rows tying donor orders to shelter fulfilments by week — including carry-forward balances and gap fills. Filterable; CSV export. |
+| **Weekly matching** | Separate pools for meals and care packs. Like-for-like demand bucketing by Flex product subtype. Priority: exact quantity match, then largest donor orders first, then Too Good gap tracking. |
+| **Carry-forward** | Partially used donor orders roll their remaining balance into later weeks (donor orders have no date; weeks are driven by Flex fulfilment dates). |
+| **Donor impact reports** | Donors aggregated by email (repeat donors merged). Printable report pages and email delivery via Resend with a link to the report. Sensitive shelters use generalised location copy. |
+| **Demo scenario** | One-click synthetic multi-week workbook for demonstrating exact matches, carry-forward, gap fills, and reports without production data. |
+
+Requires the allocation migration in [`migrations/0001_allocation_beta.sql`](migrations/0001_allocation_beta.sql) — apply with the same `wrangler d1 migrations apply` commands as the init migration.
+
 ### Wellbeing — PWI impact reporting
 
 Import the Personal Wellbeing Index Client Tracker, validate data quality, and generate reproducible quarterly wellbeing reports.
@@ -87,7 +102,7 @@ The app stores everything in a Cloudflare D1 database bound as `DB`.
    npx wrangler d1 migrations apply g-dai-db --remote
    ```
 
-The migration SQL lives in [`migrations/0000_init.sql`](migrations/0000_init.sql). Metric definitions and prototype users are seeded automatically on first request.
+The migration SQL lives in [`migrations/0000_init.sql`](migrations/0000_init.sql) and [`migrations/0001_allocation_beta.sql`](migrations/0001_allocation_beta.sql). Metric definitions and prototype users are seeded automatically on first request.
 
 ### Regenerating migrations
 
@@ -110,7 +125,9 @@ To send donor thank-you emails, configure:
 | `RESEND_API_KEY` | Resend API key |
 | `RESEND_FROM_EMAIL` | Sender address, e.g. `Two Good Co <hello@twogood.com.au>` |
 
-Add these to `.dev.vars` locally or as Wrangler secrets in production.
+Add these to `.dev.vars` locally or as Wrangler secrets in production. Used for thank-you emails and Impact (Beta) donor impact report emails.
+
+Optional: set `NEXT_PUBLIC_APP_URL` so impact report emails link to the correct host (defaults to `http://localhost:3000` in development).
 
 ### Workers AI
 
@@ -137,6 +154,7 @@ Unit tests (Vitest) cover:
 - Donation workbook import and product normalisation
 - Donor-to-shelter matching and scoring
 - Sensitive-shelter privacy masking
+- Weekly allocation engine (exact match, carry-forward, gap fill, separate meal/care-pack pools)
 
 ## Methodology notes
 
@@ -145,6 +163,7 @@ Unit tests (Vitest) cover:
 - **Change scores** compare the baseline average to the 3-month and 6-month averages.
 - **Reproducibility** — generating a report freezes a snapshot of all computed metric results, so a report's outputs never change even if new data is imported later.
 - **Donor-to-shelter matching** infers links from product category, postcode and quantity agreement (Order IDs in customer orders and shelter dispatch sheets are separate systems and are not compared). Traces below the confidence threshold go to manual review. Each trace stores its method, confidence and the candidate orders considered for explainability.
+- **Weekly allocation (Beta)** runs a separate engine at `/donations-beta`: demand is aggregated per ISO week, shelter, and product subtype; donor supply is drawn from a cumulative pool with carry-forward; shortfalls are recorded as Too Good gap fills. See [`src/lib/donations-beta/`](src/lib/donations-beta/).
 - **Privacy** — shelters flagged with a sensitive address have their name and precise location withheld from anyone without the sensitive-view permission and from all partner-facing exports and thank-you emails.
 
 ## Deploy to Cloudflare Workers

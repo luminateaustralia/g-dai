@@ -51,7 +51,7 @@ export default async function ThankYouPage() {
         <h1 className="font-heading text-2xl font-semibold tracking-tight">
           Thank-you emails
         </h1>
-        <p className="max-w-3xl text-muted-foreground">
+        <p className="text-muted-foreground">
           Send personalised 1:1 thank-you emails to donors using the same
           partner-safe impact data as the export. Each email summarises confirmed
           and likely matches for that donor only.

@@ -51,10 +51,7 @@ export default async function ReviewPage({
   ).length;
 
   return (
-    <PageLayout
-      className="max-w-6xl"
-      breadcrumbLabel={preview.filename}
-    >
+    <PageLayout breadcrumbLabel={preview.filename}>
       <Button
         variant="ghost"
         size="sm"

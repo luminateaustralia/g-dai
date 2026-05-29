@@ -16,7 +16,7 @@ export default async function AiPage() {
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
           AI debug
         </h1>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="text-muted-foreground">
           Send a single prompt to{" "}
           <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
             {GPT_OSS_120B_MODEL}

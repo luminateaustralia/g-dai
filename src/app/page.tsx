@@ -13,7 +13,7 @@ import { PERSONAL_WELLBEING_INDEX_CLIENT_TRACKER_LABEL } from "@/lib/impact-repo
 export default function Home() {
   return (
     <PageLayout className="py-12">
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="text-center">
         <h1 className="font-heading text-4xl font-semibold tracking-tight text-balance">
           Close the Loop
         </h1>
@@ -23,7 +23,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="mx-auto mt-12 grid max-w-4xl gap-5 sm:grid-cols-2">
+      <div className="mt-12 grid gap-5 sm:grid-cols-2">
         <Link href="/donations" className="group">
           <Card className="h-full transition-shadow hover:shadow-md">
             <CardHeader>
@@ -62,7 +62,7 @@ export default function Home() {
         </Link>
       </div>
 
-      <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
+      <p className="mt-10 text-center text-xs text-muted-foreground">
         Prototype build. All sample data is de-identified and not representative
         of actual service or customer information.
       </p>

@@ -42,10 +42,7 @@ export default async function ShelterProfilePage({
   const { shelter } = profile;
 
   return (
-    <PageLayout
-      className="max-w-5xl"
-      breadcrumbLabel={shelter.displayName}
-    >
+    <PageLayout breadcrumbLabel={shelter.displayName}>
       <Button
         variant="ghost"
         size="sm"

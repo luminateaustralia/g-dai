@@ -17,7 +17,7 @@ export function PageLayout({
 }: PageLayoutProps) {
   return (
     <main
-      className={cn("mx-auto w-full max-w-7xl px-4 py-10 sm:px-6", className)}
+      className={cn("w-full px-4 py-10 sm:px-6 lg:px-8", className)}
     >
       <AppBreadcrumb
         items={breadcrumbs}

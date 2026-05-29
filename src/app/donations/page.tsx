@@ -45,7 +45,7 @@ export default async function DonationsPage() {
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
           Impact
         </h1>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="text-muted-foreground">
           Track donation impact by tracing donor orders through to the shelters
           that received donated meals and care packs.
         </p>

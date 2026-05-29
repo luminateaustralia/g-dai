@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { Loader2, MessageCircleQuestion, Send, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Markdown } from "@/components/ui/markdown";
 import { cn } from "@/lib/utils";
 
 type ChatRole = "user" | "assistant";
@@ -33,14 +34,20 @@ function extractDelta(payload: StreamDelta): string {
   return choice?.delta?.content ?? choice?.message?.content ?? "";
 }
 
-export function ReportAssistant({
-  reportId,
+export function WellbeingAssistant({
+  endpoint,
   canRun,
   exampleQuestions,
+  triggerLabel = "Ask AI about this report",
+  title = "Ask about this report",
+  description = "Answers are grounded only in this report's figures.",
 }: {
-  reportId: string;
+  endpoint: string;
   canRun: boolean;
   exampleQuestions: string[];
+  triggerLabel?: string;
+  title?: string;
+  description?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -65,14 +72,11 @@ export function ReportAssistant({
     setPending(true);
 
     try {
-      const response = await fetch(
-        `/api/wellbeing/reports/${reportId}/assistant`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: history }),
-        }
-      );
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
 
       if (!response.ok || !response.body) {
         const data = (await response.json().catch(() => null)) as {
@@ -143,14 +147,12 @@ export function ReportAssistant({
           <Button variant="outline" size="sm" className="print:hidden" />
         }
       >
-        <Sparkles /> Ask AI about this report
+        <Sparkles /> {triggerLabel}
       </SheetTrigger>
       <SheetContent className="sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Ask about this report</SheetTitle>
-          <SheetDescription>
-            Answers are grounded only in this report&rsquo;s figures.
-          </SheetDescription>
+          <SheetTitle>{title}</SheetTitle>
+          <SheetDescription>{description}</SheetDescription>
         </SheetHeader>
 
         <div
@@ -169,9 +171,10 @@ export function ReportAssistant({
                     type="button"
                     disabled={!canRun || pending}
                     onClick={() => void send(question)}
-                    className="rounded-lg border bg-background px-3 py-2 text-left text-sm transition-colors hover:border-ring hover:bg-muted disabled:pointer-events-none disabled:opacity-50"
+                    className="flex cursor-pointer items-start gap-2 rounded-lg border bg-background px-2.5 py-1.5 text-left text-xs transition-colors hover:border-ring hover:bg-muted disabled:pointer-events-none disabled:opacity-50"
                   >
-                    {question}
+                    <MessageCircleQuestion className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                    <span>{question}</span>
                   </button>
                 ))}
               </div>
@@ -187,25 +190,28 @@ export function ReportAssistant({
               >
                 <div
                   className={cn(
-                    "max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap",
+                    "max-w-[85%] rounded-lg px-3 py-2 text-sm",
                     message.role === "user"
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground whitespace-pre-wrap"
                       : "bg-background ring-1 ring-foreground/10"
                   )}
                 >
-                  {message.content ||
-                    (pending && message.role === "assistant" ? (
+                  {message.role === "assistant" ? (
+                    message.content ? (
+                      <Markdown>{message.content}</Markdown>
+                    ) : pending ? (
                       <Loader2 className="size-4 animate-spin" />
-                    ) : null)}
+                    ) : null
+                  ) : (
+                    message.content
+                  )}
                 </div>
               </div>
             ))
           )}
         </div>
 
-        {error ? (
-          <p className="text-sm text-destructive">{error}</p>
-        ) : null}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         <form onSubmit={handleSubmit} className="flex items-end gap-2">
           <textarea
@@ -221,7 +227,7 @@ export function ReportAssistant({
             disabled={!canRun || pending}
             placeholder={
               canRun
-                ? "Ask a question about this report…"
+                ? "Ask a question…"
                 : "Your role cannot run AI workloads."
             }
             className="min-h-10 flex-1 resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"

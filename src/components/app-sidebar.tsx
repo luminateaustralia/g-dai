@@ -74,18 +74,31 @@ function SidebarNavSubLink({
 
   const active = isSubNavActive(pathname, item.href);
   const className = navLinkClass(active, collapsed, true);
+  const Icon = item.icon;
+
+  const content = (
+    <>
+      <span className="truncate">{item.label}</span>
+      {Icon ? (
+        <Icon
+          className="ml-auto size-3 shrink-0 text-sidebar-foreground/45"
+          aria-hidden
+        />
+      ) : null}
+    </>
+  );
 
   if (item.external) {
     return (
       <a href={item.href} onClick={onNavigate} className={className}>
-        <span className="truncate">{item.label}</span>
+        {content}
       </a>
     );
   }
 
   return (
     <Link href={item.href} onClick={onNavigate} className={className}>
-      <span className="truncate">{item.label}</span>
+      {content}
     </Link>
   );
 }

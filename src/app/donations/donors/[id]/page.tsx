@@ -41,7 +41,7 @@ export default async function DonorProfilePage({
   ).length;
 
   return (
-    <PageLayout className="max-w-5xl" breadcrumbLabel={profile.name ?? "Donor"}>
+    <PageLayout breadcrumbLabel={profile.name ?? "Donor"}>
       <Button
         variant="ghost"
         size="sm"

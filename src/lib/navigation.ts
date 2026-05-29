@@ -1,5 +1,6 @@
 import {
   Bot,
+  Download,
   Heart,
   Home,
   Lightbulb,
@@ -12,6 +13,7 @@ export type NavSubItem = {
   href: string;
   label: string;
   external?: boolean;
+  icon?: LucideIcon;
 };
 
 export type NavItem = {
@@ -37,11 +39,17 @@ export const NAV_ITEMS: NavItem[] = [
         href: "/donations/export",
         label: "Partner-safe export",
         external: true,
+        icon: Download,
       },
     ],
   },
   { href: "/wellbeing", label: "Wellbeing", icon: Heart },
-  { href: "/future", label: "Future", icon: Lightbulb },
+  {
+    href: "/future",
+    label: "Future",
+    icon: Lightbulb,
+    children: [{ href: "/future/wellness", label: "Wellbeing vision" }],
+  },
 ];
 
 export const BOTTOM_NAV_ITEMS: NavItem[] = [

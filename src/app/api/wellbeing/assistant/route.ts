@@ -5,9 +5,9 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { roleHasPermission } from "@/lib/auth/roles";
 import {
   buildAssistantSystemPrompt,
-  buildReportAiContext,
+  buildDashboardAiContext,
 } from "@/lib/impact-reporting/ai-context";
-import { getReport } from "@/lib/impact-reporting/report-service";
+import { loadAllReports } from "@/lib/impact-reporting/report-service";
 
 type AssistantRequest = {
   messages: AiChatMessage[];
@@ -19,10 +19,7 @@ function isAssistantRequest(value: unknown): value is AssistantRequest {
   return Array.isArray(candidate.messages) && candidate.messages.length > 0;
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (
     !roleHasPermission(user.role, "ai.run") ||
@@ -30,8 +27,6 @@ export async function POST(
   ) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
-
-  const { id } = await params;
 
   let body: unknown;
   try {
@@ -48,12 +43,15 @@ export async function POST(
   }
 
   const db = await getDb();
-  const loaded = await getReport(db, id);
-  if (!loaded) {
-    return Response.json({ error: "Report not found." }, { status: 404 });
+  const reports = await loadAllReports(db);
+  if (!reports.length) {
+    return Response.json(
+      { error: "No wellbeing reports have been generated yet." },
+      { status: 404 }
+    );
   }
 
-  const context = buildReportAiContext(loaded);
+  const context = buildDashboardAiContext(reports);
   const conversation = body.messages.filter((m) => m.role !== "system");
 
   const chatRequest: AiChatRequest = {

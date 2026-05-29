@@ -5,10 +5,10 @@ import { PageLayout } from "@/components/page-layout";
 import { getDb } from "@/db/client";
 import { loadAllReports } from "@/lib/impact-reporting/report-service";
 import { buildWellbeingDashboard } from "@/lib/impact-reporting/report-view";
-import {
-  PERSONAL_WELLBEING_INDEX_CLIENT_TRACKER_LABEL,
-  PERSONAL_WELLBEING_INDEX_LABEL,
-} from "@/lib/impact-reporting/metrics/definitions";
+import { buildDashboardExampleQuestions } from "@/lib/impact-reporting/ai-context";
+import { getCurrentUser } from "@/lib/auth/session";
+import { roleHasPermission } from "@/lib/auth/roles";
+import { PERSONAL_WELLBEING_INDEX_LABEL } from "@/lib/impact-reporting/metrics/definitions";
 import { formatChange, formatScore } from "@/lib/impact-reporting/presentation";
 import {
   Card,
@@ -24,6 +24,7 @@ import {
   PeriodTrendChart,
   WellbeingJourneyChart,
 } from "@/components/impact/charts";
+import { WellbeingAssistant } from "@/components/impact/wellbeing-assistant";
 
 export const dynamic = "force-dynamic";
 
@@ -40,24 +41,27 @@ export default async function WellbeingPage() {
   const reports = await loadAllReports(db);
   const dashboard = buildWellbeingDashboard(reports);
 
+  const user = await getCurrentUser();
+  const canRunAi = roleHasPermission(user.role, "ai.run");
+
   return (
     <PageLayout>
-      <div className="flex flex-col gap-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Wellbeing
-        </h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Track how {PERSONAL_WELLBEING_INDEX_LABEL} outcomes are trending over
-          time. Upload {PERSONAL_WELLBEING_INDEX_CLIENT_TRACKER_LABEL} workbooks
-          from the{" "}
-          <Link
-            href="/import"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            Import
-          </Link>{" "}
-          page, then generate a report to add it to these trends.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight">
+            Wellbeing
+          </h1>
+        </div>
+        {dashboard.latest ? (
+          <WellbeingAssistant
+            endpoint="/api/wellbeing/assistant"
+            canRun={canRunAi}
+            exampleQuestions={buildDashboardExampleQuestions()}
+            triggerLabel="Ask AI about wellbeing"
+            title="Ask about wellbeing"
+            description="Answers are grounded only in your wellbeing reports."
+          />
+        ) : null}
       </div>
 
       {dashboard.latest === null ? (

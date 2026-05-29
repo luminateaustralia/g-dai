@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MetricsTable } from "@/components/impact/metrics-table";
 import { ReportActions } from "@/components/impact/report-actions";
-import { ReportAssistant } from "@/components/impact/report-assistant";
+import { WellbeingAssistant } from "@/components/impact/wellbeing-assistant";
 import {
   ChangeChart,
   CohortComparisonChart,
@@ -59,10 +59,7 @@ export default async function ReportDashboardPage({
   const exampleQuestions = buildReportExampleQuestions(loaded);
 
   return (
-    <PageLayout
-      className="max-w-6xl"
-      breadcrumbLabel={loaded.report.title}
-    >
+    <PageLayout breadcrumbLabel={loaded.report.title}>
       <Button
         variant="ghost"
         size="sm"
@@ -90,8 +87,8 @@ export default async function ReportDashboardPage({
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ReportAssistant
-            reportId={loaded.report.id}
+          <WellbeingAssistant
+            endpoint={`/api/wellbeing/reports/${loaded.report.id}/assistant`}
             canRun={canRunAi}
             exampleQuestions={exampleQuestions}
           />

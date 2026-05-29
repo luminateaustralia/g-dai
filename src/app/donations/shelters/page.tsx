@@ -39,7 +39,7 @@ export default async function SheltersPage() {
     : [];
 
   return (
-    <PageLayout className="max-w-6xl">
+    <PageLayout>
       <Button
         variant="ghost"
         size="sm"

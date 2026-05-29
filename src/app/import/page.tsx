@@ -92,7 +92,7 @@ export default async function ImportPage() {
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
           Data import
         </h1>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="text-muted-foreground">
           Upload source workbooks for donation impact tracking or Personal
           Wellbeing Index reporting. After import, review and explore the data on
           the{" "}

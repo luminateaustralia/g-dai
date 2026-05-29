@@ -1,6 +1,7 @@
+import { BRAND_VOICE_GUIDE } from "@/lib/ai/brand-profile";
 import { CATEGORY_LABELS, metricByKey } from "./metrics/definitions";
 import type { MetricRow } from "./presentation";
-import { buildReportView } from "./report-view";
+import { buildReportView, buildWellbeingDashboard } from "./report-view";
 import type { LoadedReport } from "./report-service";
 
 function num(value: number | null): string {
@@ -111,4 +112,84 @@ export function buildReportExampleQuestions(loaded: LoadedReport): string[] {
   }
 
   return questions;
+}
+
+/**
+ * Builds grounding context for the wellbeing dashboard, which spans every
+ * generated report. Combines the latest report's full figures with the trend
+ * across all reporting periods so the assistant can answer both point-in-time
+ * and over-time questions.
+ */
+export function buildDashboardAiContext(reports: LoadedReport[]): string {
+  if (!reports.length) {
+    return "No wellbeing reports have been generated yet.";
+  }
+
+  const dashboard = buildWellbeingDashboard(reports);
+  const latest = reports[0];
+  const sections: string[] = [];
+
+  sections.push(
+    [
+      "# Wellbeing overview",
+      `Reports generated: ${reports.length}`,
+      dashboard.periodOverPeriodChange !== null
+        ? `Personal Wellbeing Index 6-month change versus the previous reporting period: ${signed(dashboard.periodOverPeriodChange)}`
+        : null,
+      "The latest report's full figures are below, followed by the trend across all reporting periods.",
+    ]
+      .filter(Boolean)
+      .join("\n")
+  );
+
+  sections.push(["## Latest report", buildReportAiContext(latest)].join("\n\n"));
+
+  if (dashboard.periodTrend.length > 1) {
+    const header = "| Reporting period | PWI baseline | PWI 6 months |";
+    const divider = "| --- | --- | --- |";
+    const body = dashboard.periodTrend.map(
+      (point) => `| ${point.label} | ${num(point.baseline)} | ${num(point.sixMo)} |`
+    );
+    sections.push(
+      [
+        "## Trend across reporting periods (oldest to newest)",
+        [header, divider, ...body].join("\n"),
+      ].join("\n")
+    );
+  }
+
+  return sections.join("\n\n");
+}
+
+/** Suggested starter questions for the dashboard-level assistant. */
+export function buildDashboardExampleQuestions(): string[] {
+  return [
+    "What's the headline wellbeing story across our reporting periods?",
+    "How has the Personal Wellbeing Index changed over time?",
+    "Which areas improved the most in the latest report?",
+    "Are any measures trending in the wrong direction?",
+    "Summarise the programme completion and employment outcomes.",
+  ];
+}
+
+/**
+ * Shared system prompt for the wellbeing AI assistant. Grounds responses in the
+ * supplied report data and the Two Good Co brand voice.
+ */
+export function buildAssistantSystemPrompt(context: string): string {
+  return [
+    "You are a wellbeing reporting assistant for Two Good Co's programme team.",
+    "Answer questions strictly using the report data provided below.",
+    "If the data does not contain the answer, say so plainly rather than guessing.",
+    "Never invent figures; only cite numbers that appear in the data.",
+    "Interpret each metric using its scale and direction (e.g. higher is better).",
+    "Be concise and clear for a non-analyst audience.",
+    "Ground all wording, framing, and the reasoning behind any recommendations in the Two Good Co brand voice below — warm, human, purposeful, and dignity-led. Write in Australian English.",
+    "",
+    "## Brand voice",
+    BRAND_VOICE_GUIDE,
+    "",
+    "## Report data",
+    context,
+  ].join("\n");
 }

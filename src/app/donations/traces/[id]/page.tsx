@@ -46,7 +46,7 @@ export default async function TraceDetailPage({
   const { trace, fulfilment, order, shelter } = detail;
 
   return (
-    <PageLayout className="max-w-4xl">
+    <PageLayout>
       <Button
         variant="ghost"
         size="sm"

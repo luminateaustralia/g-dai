@@ -115,6 +115,14 @@ export function buildBreadcrumbs(
       pattern: /^\/future$/,
       crumbs: () => [HOME, { label: "Future" }],
     },
+    {
+      pattern: /^\/future\/wellness$/,
+      crumbs: () => [
+        HOME,
+        { label: "Future", href: "/future" },
+        { label: "Wellbeing vision" },
+      ],
+    },
   ];
 
   for (const route of routes) {
